@@ -373,16 +373,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
 
         private void zeichneUntertitel(Canvas c, int w, int h) {
-            textFarbe.setTextSize(h * 0.05f);
+            textFarbe.setTextSize(h * 0.034f);   // klein gehalten, damit mehr Fläche zum Antippen bleibt
             int breite = (int) (w * 0.8f);
             if (textLayout == null || !layoutText.equals(untertitel) || layoutBreite != breite) {
                 textLayout = StaticLayout.Builder.obtain(untertitel, 0, untertitel.length(), textFarbe, breite)
                         .setAlignment(Layout.Alignment.ALIGN_CENTER).build();
                 layoutText = untertitel; layoutBreite = breite;
             }
-            float rand = h * 0.025f;
+            float rand = h * 0.016f;
             float boxH = textLayout.getHeight() + rand * 2;
-            float boxY = h - boxH - h * 0.04f;
+            float boxY = h - boxH - h * 0.025f;
             p.setStyle(Paint.Style.FILL); p.setColor(0xEEFFFFFF);
             rect.set(w * 0.1f - rand, boxY, w * 0.9f + rand, boxY + boxH);
             c.drawRoundRect(rect, rand * 2, rand * 2, p);

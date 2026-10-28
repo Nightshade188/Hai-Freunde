@@ -14,7 +14,7 @@ mkdir "%BAU%\klassen" || exit /b 1
 
 call aapt2 compile --dir "%HIER%res" -o "%BAU%\res.zip" || exit /b 1
 call aapt2 link -o "%BAU%\roh.apk" -I "%AJAR%" --manifest "%HIER%AndroidManifest.xml" --min-sdk-version 23 --target-sdk-version 34 "%BAU%\res.zip" || exit /b 1
-javac --release 8 -cp "%AJAR%" -d "%BAU%\klassen" "%HIER%src\de\hai\kind\MainActivity.java" || exit /b 1
+javac -encoding UTF-8 --release 8 -cp "%AJAR%" -d "%BAU%\klassen" "%HIER%src\de\hai\kind\MainActivity.java" || exit /b 1
 jar cf "%BAU%\klassen.jar" -C "%BAU%\klassen" . || exit /b 1
 call d8 --lib "%AJAR%" --min-api 23 --output "%BAU%" "%BAU%\klassen.jar" || exit /b 1
 rem classes.dex in das APK packen (cd, damit der Eintrag ohne Pfad heisst)
