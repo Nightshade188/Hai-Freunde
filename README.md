@@ -12,7 +12,7 @@ Bedienung nur durch Antippen, kein Lesen nötig, ohne Internet und ohne Berechti
   Ein Tipp ins Leere macht Blasen und Glitzer.
 - **Musik:** ruhige Meeresmusik (Akkordklänge, Wellenrauschen, sanfte Glocken, ferner Walgesang). Sie wird beim Start berechnet, es sind keine Audiodateien nötig,
   und sie wird leiser, solange der Hai spricht.
-- **Menü** (Symbol oben rechts oder Zurück-Taste): Musik an/aus, Erzählen (Text und Stimme) an/aus, App beenden (zweimal tippen zur Sicherheit), Weiterspielen.
+- **Menü** (Symbol oben rechts oder Zurück-Taste): Musik an/aus, Erzählen (Text und Stimme) an/aus, Geschichte neu starten, App beenden (zweimal tippen zur Sicherheit), Weiterspielen.
   Die Einstellungen bleiben gespeichert.
 - Die Stimme kommt aus der Sprachausgabe des Handys (Deutsch). Der Untertitel steht klein oben im Bild.
 
@@ -32,4 +32,5 @@ Der Quelltext ist UTF-8; `bauen.bat` übergibt deshalb `-encoding UTF-8` an den 
 - `Inhalt.java` – Haiarten, Szenen und Geschichten (hier Texte ergänzen)
 - `Synth.java` – Klangerzeugung der Meeresmusik (reines Java)
 - `HaiMusik.java` – spielt die Musik im Hintergrund ab (AudioTrack)
+- `Blubb.java` – Blubber-Geräusche beim Antippen
 - `AndroidManifest.xml`, `res/` – Manifest und App-Symbol

@@ -11,8 +11,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -47,7 +45,7 @@ class SeaView extends View {
     private final List<Funke> funken = new ArrayList<>();
     private final List<Qualle> quallen = new ArrayList<>();
     private final List<Seestern> seesterne = new ArrayList<>();
-    private ToneGenerator ton;
+    private final Blubb ton = new Blubb();
 
     // Zeit und Zustand
     private final long start = System.nanoTime();
@@ -82,7 +80,7 @@ class SeaView extends View {
     // Menü
     private boolean menueOffen = false;
     private float beendenBis = -1;
-    private final RectF menueKnopf = new RectF(), menueMusik = new RectF(), menueErzaehlen = new RectF(), menueBeenden = new RectF(), menueZurueck = new RectF(), menueTafel = new RectF();
+    private final RectF menueKnopf = new RectF(), menueMusik = new RectF(), menueErzaehlen = new RectF(), menueBeenden = new RectF(), menueZurueck = new RectF(), menueNeu = new RectF(), menueTafel = new RectF();
 
     SeaView(Context c) {
         super(c);
@@ -92,7 +90,6 @@ class SeaView extends View {
         menueText.setColor(0xFFFFFFFF);
         menueText.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         menueText.setTextAlign(Paint.Align.CENTER);
-        try { ton = new ToneGenerator(AudioManager.STREAM_MUSIC, 45); } catch (RuntimeException e) { ton = null; }
         int[] farben = { 0xFFFF9A3C, 0xFFFFD23C, 0xFFFF6F91 };
         for (int i = 0; i < 3; i++) {
             Fisch f = new Fisch();
@@ -118,8 +115,8 @@ class SeaView extends View {
 
     // ---------------------------------------------------------------------------------------------- Hilfen
 
-    private void pop() { if (ton != null) ton.startTone(ToneGenerator.TONE_PROP_ACK, 70); }
-    private void klingel() { if (ton != null) ton.startTone(ToneGenerator.TONE_PROP_PROMPT, 120); }
+    private void pop() { ton.blubb(); }
+    private void klingel() { ton.blubbern(); }
 
     private Blase neueBlase(boolean ueberallStarten, int h) {
         Blase b = new Blase();
@@ -831,15 +828,16 @@ class SeaView extends View {
         float kante = Math.min(w, h), tw = Math.min(w * 0.88f, kante * 1.15f), th = Math.min(h * 0.9f, kante * 1.0f);
         menueTafel.set((w - tw) / 2, (h - th) / 2, (w + tw) / 2, (h + th) / 2);
         p.setColor(0xF2173A63); c.drawRoundRect(menueTafel, kante * 0.04f, kante * 0.04f, p);
-        float zeile = th / 5.6f, bh = zeile * 0.78f, bx0 = menueTafel.left + tw * 0.08f, bx1 = menueTafel.right - tw * 0.08f;
+        float zeile = th / 6.6f, bh = zeile * 0.78f, bx0 = menueTafel.left + tw * 0.08f, bx1 = menueTafel.right - tw * 0.08f;
         menueText.setTextSize(Math.min(zeile * 0.4f, tw * 0.07f));
         menueText.setColor(0xFFBFE6FF);
         c.drawText("Menü", menueTafel.centerX(), menueTafel.top + zeile * 0.72f, menueText);
         boolean musik = app.istMusikAn(), erzaehlen = app.istErzaehlenAn(), beendenFrage = t < beendenBis;
         knopf(c, menueMusik, bx0, menueTafel.top + zeile * 1.1f, bx1, bh, musik ? 0xFF2E9E5B : 0xFF6B7A8C, "Musik: " + (musik ? "AN" : "AUS"));
         knopf(c, menueErzaehlen, bx0, menueTafel.top + zeile * 2.1f, bx1, bh, erzaehlen ? 0xFF2E9E5B : 0xFF6B7A8C, "Erzählen (Text + Stimme): " + (erzaehlen ? "AN" : "AUS"));
-        knopf(c, menueBeenden, bx0, menueTafel.top + zeile * 3.1f, bx1, bh, beendenFrage ? 0xFFD64545 : 0xFF9A5A5A, beendenFrage ? "Wirklich beenden? Nochmal tippen" : "App beenden");
-        knopf(c, menueZurueck, bx0, menueTafel.top + zeile * 4.1f, bx1, bh, 0xFF3B7DD8, "Weiterspielen");
+        knopf(c, menueNeu, bx0, menueTafel.top + zeile * 3.1f, bx1, bh, 0xFFE0892E, "Geschichte neu starten");
+        knopf(c, menueBeenden, bx0, menueTafel.top + zeile * 4.1f, bx1, bh, beendenFrage ? 0xFFD64545 : 0xFF9A5A5A, beendenFrage ? "Wirklich beenden? Nochmal tippen" : "App beenden");
+        knopf(c, menueZurueck, bx0, menueTafel.top + zeile * 5.1f, bx1, bh, 0xFF3B7DD8, "Weiterspielen");
     }
 
     private void knopf(Canvas c, RectF ziel, float x0, float y0, float x1, float hoehe, int farbe, String text) {
@@ -860,6 +858,7 @@ class SeaView extends View {
     private void menueTippen(float x, float y) {
         if (menueMusik.contains(x, y)) { app.setzeMusik(!app.istMusikAn()); pop(); }
         else if (menueErzaehlen.contains(x, y)) { app.setzeErzaehlen(!app.istErzaehlenAn()); pop(); }
+        else if (menueNeu.contains(x, y)) { geschichteNeuStarten(); pop(); }
         else if (menueBeenden.contains(x, y)) {
             if (t < beendenBis) app.beenden(); else { beendenBis = t + 3f; pop(); }   // erst nach dem zweiten Tippen
         }
@@ -867,6 +866,16 @@ class SeaView extends View {
     }
 
     // ---------------------------------------------------------------------------------------------- Antippen
+
+    /** Zurück an den Anfang: Hai-Freund im Tageslicht, Begrüßung wird wieder gesprochen. */
+    private void geschichteNeuStarten() {
+        menueOffen = false; beendenBis = -1;
+        geschNr = -1; modus = M_RUHIG; hupf = 1;
+        if (art != A_FREUND) { art = A_FREUND; artWechselT = t; }
+        if (szene != S_TAG) { szeneAlt = szene; szene = S_TAG; szeneWechselT = t; }
+        untertitel = "Tipp mich an!";
+        app.sprich(BEGRUESSUNG);
+    }
 
     private void naechsteGeschichte() {
         geschNr = (geschNr + 1) % GESCHICHTEN.length;
