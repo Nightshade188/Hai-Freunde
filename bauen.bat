@@ -14,7 +14,14 @@ mkdir "%BAU%\klassen" || exit /b 1
 
 call aapt2 compile --dir "%HIER%res" -o "%BAU%\res.zip" || exit /b 1
 call aapt2 link -o "%BAU%\roh.apk" -I "%AJAR%" --manifest "%HIER%AndroidManifest.xml" --min-sdk-version 23 --target-sdk-version 34 "%BAU%\res.zip" || exit /b 1
-javac -encoding UTF-8 --release 8 -cp "%AJAR%" -d "%BAU%\klassen" "%HIER%src\de\hai\kind\MainActivity.java" || exit /b 1
+rem alle Quelldateien kompilieren (Argumentdatei mit Anfuehrungszeichen, weil der Pfad Leerzeichen enthalten kann)
+if exist "%BAU%\quellen.txt" del "%BAU%\quellen.txt"
+rem Backslashes sind in Argumentdateien Escape-Zeichen, daher durch / ersetzen
+setlocal enabledelayedexpansion
+for /r "%HIER%src" %%f in (*.java) do (set "F=%%f" & echo "!F:\=/!">> "%BAU%\quellen.txt")
+endlocal
+set "ARGS=%BAU%\quellen.txt"
+javac -encoding UTF-8 --release 8 -cp "%AJAR%" -d "%BAU%\klassen" @"%ARGS%" || exit /b 1
 jar cf "%BAU%\klassen.jar" -C "%BAU%\klassen" . || exit /b 1
 call d8 --lib "%AJAR%" --min-api 23 --output "%BAU%" "%BAU%\klassen.jar" || exit /b 1
 rem classes.dex in das APK packen (cd, damit der Eintrag ohne Pfad heisst)
